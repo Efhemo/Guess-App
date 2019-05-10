@@ -17,6 +17,7 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -53,32 +54,29 @@ class GameFragment : Fragment() {
         Log.i("GameFragment", "started ViewModelProviders.of")
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
-        binding.correctButton.setOnClickListener {
-            viewModel.onCorrect()
-        }
-        binding.skipButton.setOnClickListener {
-            viewModel.onSkip()
-        }
+        // Set the viewmodel for databinding - this allows the bound layout access to all of the
+        // data in the VieWModel
+        binding.gameViewModel = viewModel
 
-        //observe the score in the viewmodel and update the view
-        viewModel.score.observe(this, Observer { newScore ->
-            Log.i("observe", "obsearve data $newScore")
-            binding.scoreText.text = newScore.toString()
+        // Specify the current activity as the lifecycle owner of the binding. This is used so that
+        // the binding can observe LiveData updates
+        binding.lifecycleOwner = this
 
-        })
-
-        viewModel.word.observe(this, Observer { newWord ->
-            binding.wordText.text = newWord
+        viewModel.currentTime.observe(this, Observer { newTime ->
+            binding.timerText.text = DateUtils.formatElapsedTime(newTime)
 
         })
 
-        viewModel.eventGameFinish.observe(this, Observer { hasFinished ->
-
-            if(hasFinished){
-                gameFinished()
-                viewModel.onGameFinishedComplete()
+        // Sets up event listening to navigate the player when the game is finished
+        viewModel.eventGameFinish.observe(this, Observer { isFinished ->
+            if (isFinished) {
+                val currentScore = viewModel.score.value ?: 0
+                val action = GameFragmentDirections.actionGameToScore(currentScore)
+                findNavController(this).navigate(action)
+                viewModel.onGameFinishComplete()
             }
         })
+
         return binding.root
 
     }
