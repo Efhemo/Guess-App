@@ -17,7 +17,6 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -60,12 +59,17 @@ class GameFragment : Fragment() {
 
         // Specify the current activity as the lifecycle owner of the binding. This is used so that
         // the binding can observe LiveData updates
+        /*This is used instead of doing viewModel.currentTime.observer()...*/
         binding.lifecycleOwner = this
 
-        viewModel.currentTime.observe(this, Observer { newTime ->
+        viewModel.score.observe(this, Observer {score ->
+            binding.scoreText.text = score.toString()
+        })
+
+        /*viewModel.currentTime.observe(this, Observer { newTime ->
             binding.timerText.text = DateUtils.formatElapsedTime(newTime)
 
-        })
+        })*/
 
         // Sets up event listening to navigate the player when the game is finished
         viewModel.eventGameFinish.observe(this, Observer { isFinished ->

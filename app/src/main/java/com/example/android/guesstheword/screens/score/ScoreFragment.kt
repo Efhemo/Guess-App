@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -56,8 +57,20 @@ class ScoreFragment : Fragment() {
         scoreViewModelFactory = ScoreViewModelFactory(scoreFragmentArgs.score)
         scoreViewModel = ViewModelProviders.of(this, scoreViewModelFactory).get(ScoreViewModel::class.java)
 
+        binding.scoreViewModel = scoreViewModel
 
-        binding.playAgainButton.setOnClickListener { onPlayAgain() }
+        binding.lifecycleOwner = this
+
+
+        //binding.playAgainButton.setOnClickListener { onPlayAgain() }
+
+        // Navigates back to title when button is pressed
+        scoreViewModel.eventPlayAgain.observe(this, Observer { playAgain ->
+            if (playAgain) {
+                findNavController().navigate(ScoreFragmentDirections.actionRestart())
+                scoreViewModel.onPlayAgainComplete()
+            }
+        })
 
         return binding.root
     }

@@ -1,9 +1,11 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.CountDownTimer
+import android.text.format.DateUtils
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 
 
@@ -28,6 +30,12 @@ class GameViewModel: ViewModel() {
     private val _currentTime = MutableLiveData<Long>()
     val currentTime: LiveData<Long> get() = _currentTime
 
+    //converting/transformation long to string in LiveData
+    //we also have switchmap and mediatorLiveData,
+    val currentTimeString: LiveData<String> = Transformations.map(currentTime,  { timeSpent ->
+        DateUtils.formatElapsedTime(timeSpent).toString()
+
+    })
 
     // The current word
     var word = MutableLiveData<String>()
@@ -35,7 +43,7 @@ class GameViewModel: ViewModel() {
 
     // The current score
     private var _score = MutableLiveData<Int>()
-     val score: LiveData<Int> get() = _score //read Only version
+    val score: LiveData<Int> get() = _score //read Only version
 
 
     // The list of words - the front of the list is the next word to guess
@@ -44,6 +52,7 @@ class GameViewModel: ViewModel() {
     // Event which triggers the end of the game
     private val _eventGameFinish = MutableLiveData<Boolean>()
     val eventGameFinish: LiveData<Boolean> get() = _eventGameFinish
+
 
 
     init {
